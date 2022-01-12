@@ -1,4 +1,4 @@
-package com.atguigu.yygh.config;
+package com.atguigu.yygh.common.config;
 
 import com.google.common.base.Predicates;
 import org.springframework.context.annotation.Bean;
