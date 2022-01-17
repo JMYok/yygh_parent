@@ -17,9 +17,12 @@ import javax.websocket.server.PathParam;
 import java.util.List;
 import java.util.Random;
 
+import static com.baomidou.mybatisplus.core.toolkit.ObjectUtils.isNull;
+
 @Api(tags = "医院设置管理")
 @RestController
 @RequestMapping("/admin/hosp/hospitalSet")
+@CrossOrigin
 public class HospitalSetController {
 
     @Autowired
@@ -58,15 +61,17 @@ public class HospitalSetController {
         //构建查询条件
         QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
 
-        String hosname = hospitalSetQueryVo.getHosname();
-        String hoscode = hospitalSetQueryVo.getHoscode();
+        if(!isNull(hospitalSetQueryVo)) {
+            String hosname = hospitalSetQueryVo.getHosname();
+            String hoscode = hospitalSetQueryVo.getHoscode();
 
-        if(!StringUtils.isEmpty(hosname)){
-            queryWrapper.like("hosname",hosname);
-        }
+            if (!StringUtils.isEmpty(hosname)) {
+                queryWrapper.like("hosname", hosname);
+            }
 
-        if(!StringUtils.isEmpty(hoscode)){
-            queryWrapper.eq("hoscode",hoscode);
+            if (!StringUtils.isEmpty(hoscode)) {
+                queryWrapper.eq("hoscode", hoscode);
+            }
         }
 
         //调用分页方法
