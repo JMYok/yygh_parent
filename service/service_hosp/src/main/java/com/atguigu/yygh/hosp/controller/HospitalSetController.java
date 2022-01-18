@@ -40,7 +40,7 @@ public class HospitalSetController {
     @ApiOperation(value = "逻辑删除医院设置")
     @DeleteMapping("/{id}")
     public Result deleteHospitalSet(@PathVariable("id") Integer id){
-        boolean status = hospitalSetService.removeById(2L);
+        boolean status = hospitalSetService.removeById(id);
         if(status){
             return Result.ok();
         }else {
@@ -122,8 +122,12 @@ public class HospitalSetController {
     @ApiOperation("批量删除医院设置")
     @DeleteMapping("batchRemove")
     public Result batchRemoveHospitalSet(@RequestBody List<Long> idList) {
-        hospitalSetService.removeByIds(idList);
+        boolean status = hospitalSetService.removeByIds(idList);
+        if(status)
         return Result.ok();
+        else{
+            return Result.fail();
+        }
     }
 
     //8 医院设置的锁定和解锁
