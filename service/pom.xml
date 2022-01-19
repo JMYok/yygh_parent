@@ -9,6 +9,7 @@
     </parent>
     <modules>
         <module>service_hosp</module>
+        <module>service_cmn</module>
     </modules>
     <modelVersion>4.0.0</modelVersion>
 
