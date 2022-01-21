@@ -1,6 +1,7 @@
 package com.atguigu.yygh.cmn.service.Impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.atguigu.yygh.cmn.listener.DictListener;
 import com.atguigu.yygh.cmn.mapper.DictMapper;
 import com.atguigu.yygh.cmn.service.DictService;
 import com.atguigu.yygh.model.cmn.Dict;
@@ -12,14 +13,17 @@ import org.apache.http.HttpResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
+
     /**
      * 根据数据id查询子数据列表
      * @param id
@@ -47,6 +51,21 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         wrapper.eq("parent_id",id);
         Integer cnt = baseMapper.selectCount(wrapper);
         return cnt>0;
+    }
+
+    /**
+     * 导入数据字典
+     * @param file
+     */
+    @Override
+    public void importDictData(MultipartFile file) {
+        try {
+            EasyExcel.read(file.getInputStream(),DictEeVo.class,new DictListener(baseMapper))
+                    .sheet()
+                    .doRead();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
