@@ -1,10 +1,15 @@
 package com.atguigu.yygh.hosp.controller.api;
 
+import com.atguigu.yygh.common.exception.YyghException;
 import com.atguigu.yygh.common.helper.HttpRequestHelper;
 import com.atguigu.yygh.common.result.Result;
+import com.atguigu.yygh.common.result.ResultCodeEnum;
 import com.atguigu.yygh.common.utils.HttpUtil;
+import com.atguigu.yygh.common.utils.MD5;
 import com.atguigu.yygh.hosp.service.HospitalService;
+import com.atguigu.yygh.hosp.service.HospitalSetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +27,9 @@ public class ApiController {
     @Autowired
     private HospitalService hospitalService;
 
+    @Autowired
+    private HospitalSetService hospitalSetService;
+
     /**
      * 上传医院接口
      * @param request
@@ -34,9 +42,22 @@ public class ApiController {
             //转换数据形式方便之后操作
         Map<String, Object> parameterMap = HttpRequestHelper.switchMap(map);
 
+        //1.获取医院系统传过来的签名
+        String hospitalSignkey = (String) parameterMap.get("sign");
+
+        //2.根据传递过来的医院编码，查询数据库，查询签名
+        String hoscode = (String)parameterMap.get("hoscode");
+        String signkey = hospitalSetService.getSignKey(hoscode);
+
+        //3.将查询到的签名进行二次加密
+        String encryptSignkey = MD5.encrypt(signkey);
+
+        //4.比较两次加密的签名是否一样
+        if(!hospitalSignkey.equals(encryptSignkey)){
+            throw new  YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
         //调用service方法
         hospitalService.save(parameterMap);
-
         return Result.ok();
     }
 }
