@@ -9,6 +9,7 @@ import com.atguigu.hospital.model.Schedule;
 import com.atguigu.hospital.service.ApiService;
 import com.atguigu.hospital.util.BeanUtils;
 import com.atguigu.hospital.util.HttpRequestHelper;
+import com.atguigu.hospital.util.MD5;
 import com.atguigu.hospital.util.YyghException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
