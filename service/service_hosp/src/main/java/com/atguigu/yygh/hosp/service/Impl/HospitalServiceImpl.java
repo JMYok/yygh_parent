@@ -14,6 +14,7 @@ import java.util.Map;
 @Service
 public class HospitalServiceImpl implements HospitalService {
 
+
     @Autowired
     private HospitalRepository hospitalRepository;
 
@@ -42,7 +43,12 @@ public class HospitalServiceImpl implements HospitalService {
             hospital.setIsDeleted(0);
             hospitalRepository.save(hospital);
         }
+    }
 
-
+    //实现医院编号的查询
+    @Override
+    public Hospital getByHoscode(String hoscode) {
+        Hospital hospital = hospitalRepository.getHospitalByHoscode(hoscode);
+        return hospital;
     }
 }
