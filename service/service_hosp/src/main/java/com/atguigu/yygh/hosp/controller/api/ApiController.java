@@ -8,11 +8,14 @@ import com.atguigu.yygh.common.utils.MD5;
 import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
+import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Hospital;
+import com.atguigu.yygh.vo.hosp.DepartmentQueryVo;
 import io.swagger.annotations.ApiOperation;
-import org.apache.http.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -153,4 +156,42 @@ public class ApiController {
         return Result.ok();
     }
 
+    //查询科室接口
+    @PostMapping("department/list")
+    public Result findDepartment(HttpServletRequest request){
+        //获取传递过来的部门信息
+        Map<String, String[]> map = request.getParameterMap();
+        //转换数据形式方便之后操作
+        Map<String, Object> parameterMap = HttpRequestHelper.switchMap(map);
+
+        //医院的编号
+        String hoscode = (String)parameterMap.get("hoscode");
+        //获取医院系统传过来的签名
+        String hospitalSignkey = (String) parameterMap.get("sign");
+
+        //非必填
+        String depcode = (String)parameterMap.get("depcode");
+        int page = StringUtils.isEmpty(parameterMap.get("page")) ? 1 : Integer.parseInt((String)parameterMap.get("page"));
+        int limit = StringUtils.isEmpty(parameterMap.get("limit")) ? 10 : Integer.parseInt((String)parameterMap.get("limit"));
+
+        if(StringUtils.isEmpty(hoscode)) {
+            throw new YyghException(ResultCodeEnum.PARAM_ERROR);
+        }
+
+        String signkey = hospitalSetService.getSignKey(hoscode);
+
+        //将查询到的签名进行二次加密
+        String encryptSignkey = MD5.encrypt(signkey);
+
+        //比较两次加密的签名是否一样
+        if(!hospitalSignkey.equals(encryptSignkey)){
+            throw new  YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+        DepartmentQueryVo departmentQueryVo = new DepartmentQueryVo();
+        departmentQueryVo.setHoscode(hoscode);
+        departmentQueryVo.setDepcode(depcode);
+        Page<Department> pageModel = departmentService.selectPage(page, limit, departmentQueryVo);
+        return Result.ok(pageModel);
+    }
 }
