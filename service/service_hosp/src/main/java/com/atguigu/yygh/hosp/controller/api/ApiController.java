@@ -194,4 +194,40 @@ public class ApiController {
         Page<Department> pageModel = departmentService.selectPage(page, limit, departmentQueryVo);
         return Result.ok(pageModel);
     }
+
+    @ApiOperation(value = "删除科室")
+    @PostMapping("department/remove")
+    public Result removeDepartment(HttpServletRequest request) {
+        //获取传递过来的部门信息
+        Map<String, String[]> map = request.getParameterMap();
+        //转换数据形式方便之后操作
+        Map<String, Object> parameterMap = HttpRequestHelper.switchMap(map);
+
+        //1.获取医院系统传过来的签名
+        String hospitalSignkey = (String) parameterMap.get("sign");
+
+        //2.根据传递过来的医院编码，查询数据库得到签名
+        String hoscode = (String)parameterMap.get("hoscode");
+
+        if(StringUtils.isEmpty(hoscode)){
+            throw new  YyghException(ResultCodeEnum.PARAM_ERROR);
+        }
+
+        String signkey = hospitalSetService.getSignKey(hoscode);
+
+
+        //3.将查询到的签名进行二次加密
+        String encryptSignkey = MD5.encrypt(signkey);
+
+        //4.比较两次加密的签名是否一样
+        if(!hospitalSignkey.equals(encryptSignkey)){
+            throw new  YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+        String depcode = (String)parameterMap.get("depcode");
+
+        departmentService.remove(hoscode,depcode);
+
+        return Result.ok();
+    }
 }

@@ -7,7 +7,10 @@ import org.springframework.data.domain.Page;
 import java.util.Map;
 
 public interface DepartmentService {
-    //创建新的科室
+    /**
+     * 创建新的科室
+     * @param parameterMap
+     */
     void save(Map<String, Object> parameterMap);
 
     /**
@@ -18,4 +21,11 @@ public interface DepartmentService {
      * @return
      */
     Page<Department> selectPage(Integer page, Integer limit, DepartmentQueryVo departmentQueryVo);
+
+    /**
+     * 刪除科室
+     * @param hoscode
+     * @param depcode
+     */
+    void remove(String hoscode, String depcode);
 }

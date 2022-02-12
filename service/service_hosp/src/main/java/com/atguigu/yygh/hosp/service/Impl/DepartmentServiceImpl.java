@@ -41,6 +41,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
     }
 
+    //分页查找科室
     @Override
     public Page<Department> selectPage(Integer page, Integer limit, DepartmentQueryVo departmentQueryVo) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
@@ -65,4 +66,17 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         return pages;
     }
+
+    //删除科室
+    @Override
+    public void remove(String hoscode, String depcode) {
+
+        Department department =
+                departmentRepository.getDepartmentByHoscodeAndDepcode(hoscode, depcode);
+
+        if(null != department){
+            departmentRepository.deleteById(department.getId());
+        }
+    }
+
 }
