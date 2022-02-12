@@ -11,7 +11,9 @@ import com.atguigu.yygh.hosp.service.HospitalSetService;
 import com.atguigu.yygh.hosp.service.ScheduleService;
 import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Hospital;
+import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.DepartmentQueryVo;
+import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -267,5 +269,49 @@ public class ApiController {
         scheduleService.save(parameterMap);
 
         return Result.ok();
+    }
+
+    @ApiOperation(value = "获取排班分页列表")
+    @PostMapping("schedule/list")
+    public Result schedule(HttpServletRequest request) {
+        //获取传递过来的排班信息
+        Map<String, String[]> map = request.getParameterMap();
+        //转换数据形式方便之后操作
+        Map<String, Object> parameterMap = HttpRequestHelper.switchMap(map);
+
+
+
+        //1.获取医院系统传过来的签名
+        String hospitalSignkey = (String) parameterMap.get("sign");
+
+        //2.根据传递过来的医院编码，查询数据库得到签名
+        String hoscode = (String)parameterMap.get("hoscode");
+
+        if(StringUtils.isEmpty(hoscode)){
+            throw new  YyghException(ResultCodeEnum.PARAM_ERROR);
+        }
+
+        String signkey = hospitalSetService.getSignKey(hoscode);
+
+
+        //3.将查询到的签名进行二次加密
+        String encryptSignkey = MD5.encrypt(signkey);
+
+        //4.比较两次加密的签名是否一样
+        if(!hospitalSignkey.equals(encryptSignkey)){
+            throw new  YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+        //非必填
+        String depcode = (String)parameterMap.get("depcode");
+        int page = StringUtils.isEmpty(parameterMap.get("page")) ? 1 : Integer.parseInt((String)parameterMap.get("page"));
+        int limit = StringUtils.isEmpty(parameterMap.get("limit")) ? 10 : Integer.parseInt((String)parameterMap.get("limit"));
+
+        ScheduleQueryVo scheduleQueryVo = new ScheduleQueryVo();
+        scheduleQueryVo.setHoscode(hoscode);
+        scheduleQueryVo.setDepcode(depcode);
+        Page<Schedule> pageModel = scheduleService.selectPage(page , limit, scheduleQueryVo);
+
+        return Result.ok(pageModel);
     }
 }
