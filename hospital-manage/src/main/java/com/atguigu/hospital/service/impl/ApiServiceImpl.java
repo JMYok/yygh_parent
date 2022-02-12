@@ -261,7 +261,7 @@ public class ApiServiceImpl implements ApiService {
             paramMap.put("status",schedule.getStatus());
             paramMap.put("hosScheduleId",schedule.getId());
             paramMap.put("timestamp", HttpRequestHelper.getTimestamp());
-            paramMap.put("sign",HttpRequestHelper.getSign(paramMap, this.getSignKey()));
+            paramMap.put("sign",MD5.encrypt(this.getSignKey()));
 
             JSONObject respone = HttpRequestHelper.sendRequest(paramMap,this.getApiUrl()+"/api/hosp/saveSchedule");
             System.out.println(respone.toJSONString());

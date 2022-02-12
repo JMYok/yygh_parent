@@ -21,7 +21,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     //创建新的科室
     @Override
     public void save(Map<String, Object> parameterMap) {
-        //将参数的map集合转换为对象 Hospital
+        //将参数的map集合转换为对象 Department
         String mapString = JSONObject.toJSONString(parameterMap);
         Department department = JSONObject.parseObject(mapString, Department.class);
 
