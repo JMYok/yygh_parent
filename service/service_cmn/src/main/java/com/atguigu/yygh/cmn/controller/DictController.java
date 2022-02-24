@@ -4,7 +4,9 @@ import com.atguigu.yygh.cmn.service.DictService;
 import com.atguigu.yygh.common.result.Result;
 import com.atguigu.yygh.model.cmn.Dict;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +43,27 @@ public class DictController {
     public Result importDict(MultipartFile file){
         dictService.importDictData(file);
         return Result.ok();
+    }
+
+    //根据上级编码和值获取数据字典名称
+    @ApiOperation(value = "获取数据字典名称")
+    @GetMapping(value = "/getName/{parentDictCode}/{value}")
+    public String getName(
+            @ApiParam(name = "parentDictCode", value = "上级编码", required = true)
+            @PathVariable("parentDictCode") String parentDictCode,
+
+            @ApiParam(name = "value", value = "值", required = true)
+            @PathVariable("value") String value) {
+        return dictService.getNameByParentDictCodeAndValue(parentDictCode, value);
+    }
+
+    //根据值获取数据字典名称
+    @ApiOperation(value = "获取数据字典名称")
+    @ApiImplicitParam(name = "value", value = "值", required = true, dataType = "Long", paramType = "path")
+    @GetMapping(value = "/getName/{value}")
+    public String getName(
+            @ApiParam(name = "value", value = "值", required = true)
+            @PathVariable("value") String value) {
+        return dictService.getNameByParentDictCodeAndValue("", value);
     }
 }

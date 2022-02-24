@@ -8,6 +8,7 @@ import com.atguigu.yygh.model.cmn.Dict;
 import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.http.HttpResponse;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +26,9 @@ import java.util.List;
 
 @Service
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
+
+    @Autowired
+    DictMapper dictMapper;
 
     /**
      * 根据数据id查询子数据列表
@@ -109,4 +113,35 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         }
     }
 
+    /**
+     * 根据上级编码与值获取数据字典名称
+     * @param parentDictCode
+     * @param value
+     * @return
+     */
+    @Override
+    public String getNameByParentDictCodeAndValue(String parentDictCode, String value) {
+        //如果value能唯一定位数据字典，parentDictCode可以传空，例如：省市区的value值能够唯一确定
+        if(StringUtils.isEmpty(parentDictCode)) {
+            Dict dict = dictMapper.selectOne(new QueryWrapper<Dict>().eq("value", value));
+            if(null != dict) {
+                return dict.getName();
+            }
+        } else {
+            Dict parentDict = this.getByDictsCode(parentDictCode);
+            if(null == parentDict) return "";
+            Dict dict = dictMapper.selectOne(new QueryWrapper<Dict>().eq("parent_id", parentDict.getId()).eq("value", value));
+            if(null != dict) {
+                return dict.getName();
+            }
+        }
+        return "";
+    }
+
+    private Dict getByDictsCode(String parentDictCode){
+        QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+        wrapper.eq("dict_code", parentDictCode);
+        Dict dict = baseMapper.selectOne(wrapper);
+        return dict;
+    }
 }
