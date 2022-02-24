@@ -2,6 +2,7 @@ package com.atguigu.yygh.hosp.service.Impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.yygh.cmn.client.DictFeignClient;
+import com.atguigu.yygh.enums.DictEnum;
 import com.atguigu.yygh.hosp.repository.HospitalRepository;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.model.hosp.Hospital;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -76,6 +78,29 @@ public class HospitalServiceImpl implements HospitalService {
         Example<Hospital> example = Example.of(hospital, matcher);
         Page<Hospital> pages = hospitalRepository.findAll(example, pageable);
 
+        //获取查询到的医院集合，用java8流的方式遍历进行医院等级的封装
+        pages.getContent().stream().forEach(item -> {
+            this.packHospital(item);
+        });
+
         return pages;
+    }
+
+    /**
+     * 封装数据
+     * @param hospital
+     * @return
+     */
+    private Hospital packHospital(Hospital hospital) {
+        //根据dictCode和value获取医院等级
+        String hostypeString = dictFeignClient.getName(DictEnum.HOSTYPE.getDictCode(),hospital.getHostype());
+        //省 市 地区
+        String provinceString = dictFeignClient.getName(hospital.getProvinceCode());
+        String cityString = dictFeignClient.getName(hospital.getCityCode());
+        String districtString = dictFeignClient.getName(hospital.getDistrictCode());
+
+        hospital.getParam().put("hostypeString", hostypeString);
+        hospital.getParam().put("fullAddress", provinceString + cityString + districtString + hospital.getAddress());
+        return hospital;
     }
 }

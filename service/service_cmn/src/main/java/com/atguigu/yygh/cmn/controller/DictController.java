@@ -66,4 +66,6 @@ public class DictController {
             @PathVariable("value") String value) {
         return dictService.getNameByParentDictCodeAndValue("", value);
     }
+
+
 }
