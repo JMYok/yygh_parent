@@ -75,6 +75,4 @@ public class DictController {
         List<Dict> list = dictService.findByDictCode(dictCode);
         return Result.ok(list);
     }
-
-
 }

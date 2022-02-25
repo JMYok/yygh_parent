@@ -128,7 +128,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                 return dict.getName();
             }
         } else {
-            Dict parentDict = this.getByDictsCode(parentDictCode);
+            Dict parentDict = this.getDictByDictsCode(parentDictCode);
             if(null == parentDict) return "";
             Dict dict = dictMapper.selectOne(new QueryWrapper<Dict>().eq("parent_id", parentDict.getId()).eq("value", value));
             if(null != dict) {
@@ -140,13 +140,12 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 
     @Override
     public List<Dict> findByDictCode(String dictCode) {
-//        Dict codeDict = this.getDictByDictCode(dictCode);
-//        if(null == codeDict) return null;
-//        return this.findChlidData(codeDict.getId());
-        return null;
+        Dict codeDict = this.getDictByDictsCode(dictCode);
+        if(null == codeDict) return null;
+        return this.findChildDataById(codeDict.getId());
     }
 
-    private Dict getByDictsCode(String parentDictCode){
+    private Dict getDictByDictsCode(String parentDictCode){
         QueryWrapper<Dict> wrapper = new QueryWrapper<>();
         wrapper.eq("dict_code", parentDictCode);
         Dict dict = baseMapper.selectOne(wrapper);
