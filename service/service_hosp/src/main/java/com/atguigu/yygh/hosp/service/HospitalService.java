@@ -28,4 +28,11 @@ public interface HospitalService {
      * @param status
      */
     void updateStatus(String id, Integer status);
+
+    /**
+     * 根据id获取医院详细信息
+     * @param id
+     * @return
+     */
+    Map<String, Object> getHospById(String id);
 }
