@@ -21,4 +21,11 @@ public interface HospitalService {
      * @return
      */
     Page<Hospital> selectPage(Integer page, Integer limit, HospitalQueryVo hospitalQueryVo);
+
+    /**
+     * 更新医院上线状态
+     * @param id
+     * @param status
+     */
+    void updateStatus(String id, Integer status);
 }
